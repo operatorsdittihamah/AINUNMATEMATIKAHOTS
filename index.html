@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Matematika Kelas 6 - HOTS</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #4b0082, #1e90ff);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      padding: 20px;
+    }
+    .card {
+      background: #ffffff;
+      color: #222;
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+    }
+    h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin: 10px 0 20px;
+    }
+    .top-image {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .top-image img {
+      max-width: 220px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .question {
+      font-size: 1.6rem;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .options button {
+      width: 100%;
+      margin-bottom: 16px;
+      padding: 20px;
+      font-size: 1.4rem;
+      border-radius: 18px;
+      border: none;
+      cursor: pointer;
+      background: #f1f1f1;
+      transition: 0.3s;
+    }
+    .options button:hover {
+      background: #4b0082;
+      color: #fff;
+    }
+    .options button.wrong {
+      background: #e74c3c !important;
+      color: #fff;
+    }
+    .options button.correct {
+      background: #2ecc71 !important;
+      color: #fff;
+    }
+    .progress {
+      height: 16px;
+      background: #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 25px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #1e90ff;
+      transition: width 0.3s;
+    }
+    .explanation {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 16px;
+      font-size: 1.2rem;
+    }
+    .next-btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 18px;
+      font-size: 1.4rem;
+      border-radius: 18px;
+      border: none;
+      background: #1e90ff;
+      color: #fff;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="top-image">
+        <img src="https://images.unsplash.com/photo-1606761568499-6d2451b23c66" alt="Game Matematika" />
+      </div>
+      <h1>Belajar Soal HOTS Matematika Kelas 6 Bersama Ainun</h1>
+      <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <h2 id="level">Soal 1</h2>
+      <p class="question" id="question"></p>
+      <div class="options" id="options"></div>
+      <div class="explanation" id="explanation" style="display:none;"></div>
+      <button class="next-btn" id="nextBtn">Soal Berikutnya</button>
+    </div>
+  </div>
+
+  <script>
+    const quizData = [];
+
+    // Generate 40 soal HOTS berbasis cerita
+    for (let i = 1; i <= 40; i++) {
+      quizData.push({
+        level: 'Soal ' + i,
+        question: `Dalam sebuah game petualangan, Alya mengumpulkan ${200 + i*5} koin dan Raka ${150 + i*3} koin. Setiap 5 koin menjadi 1 energi. Berapa total energi yang mereka peroleh?`,
+        options: [
+          Math.floor(((200 + i*5) + (150 + i*3)) / 5) - 2,
+          Math.floor(((200 + i*5) + (150 + i*3)) / 5),
+          Math.floor(((200 + i*5) + (150 + i*3)) / 5) + 2,
+          Math.floor(((200 + i*5) + (150 + i*3)) / 5) + 5,
+        ],
+        answer: 1,
+        explanation: `Jumlah koin = ${(200 + i*5)} + ${(150 + i*3)} = ${((200 + i*5) + (150 + i*3))}. Karena 5 koin = 1 energi, maka energi = ${((200 + i*5) + (150 + i*3))} ÷ 5 = ${Math.floor(((200 + i*5) + (150 + i*3)) / 5)}.`
+      });
+    }
+
+    let current = 0;
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const levelEl = document.getElementById('level');
+    const progressBar = document.getElementById('progressBar');
+    const explanationEl = document.getElementById('explanation');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function loadQuiz() {
+      const data = quizData[current];
+      levelEl.innerText = data.level + ' / 40';
+      questionEl.innerText = data.question;
+      optionsEl.innerHTML = '';
+      explanationEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+
+      data.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(i, btn);
+        optionsEl.appendChild(btn);
+      });
+      progressBar.style.width = (current / quizData.length) * 100 + '%';
+    }
+
+    function checkAnswer(selected, btn) {
+      const buttons = optionsEl.querySelectorAll('button');
+      buttons.forEach(b => b.disabled = true);
+
+      if (selected === quizData[current].answer) {
+        btn.classList.add('correct');
+      } else {
+        btn.classList.add('wrong');
+        buttons[quizData[current].answer].classList.add('correct');
+      }
+
+      explanationEl.innerHTML = '<b>Kunci Jawaban & Cara Penyelesaian:</b><br>' + quizData[current].explanation;
+      explanationEl.style.display = 'block';
+      nextBtn.style.display = 'block';
+    }
+
+    nextBtn.onclick = () => {
+      current++;
+      if (current < quizData.length) {
+        loadQuiz();
+      } else {
+        questionEl.innerText = '🎉 Selamat! Kamu telah menyelesaikan 40 soal HOTS.';
+        optionsEl.innerHTML = '';
+        explanationEl.style.display = 'none';
+        levelEl.innerText = 'Selesai';
+        progressBar.style.width = '100%';
+        nextBtn.style.display = 'none';
+      }
+    };
+
+    loadQuiz();
+  </script>
+</body>
+</html>
